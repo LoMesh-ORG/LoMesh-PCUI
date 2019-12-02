@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>554</width>
+    <height>376</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>261</width>
+      <height>331</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="NetworkTab">
+     <attribute name="title">
+      <string>Wireless</string>
+     </attribute>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="1" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Network Address :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="lineEdit_NADDR"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>TX power :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="comboBox_TXPower">
+        <item>
+         <property name="text">
+          <string>2 dBm</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>3 dBm</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>4 dBm</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>5 dBm</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>6 dBm</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>7 dBm</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>8 dBm</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>9 dBm</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>10 dBm</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>11 dBm</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>12 dBm</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>13 dBm</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>14 dBm</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>15 dBm</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>16 dBm</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>17 dBm</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Mode:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLabel" name="label_mode">
+        <property name="text">
+         <string>Unknown</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>RF Channel:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QComboBox" name="comboBox_RFChannel">
+        <item>
+         <property name="text">
+          <string>1: 906 MHz</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>2: 908 MHz</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>3: 910 MHz</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>4: 912 MHz</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>5: 914 MHz</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>6: 916 MHz</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>7: 918 MHz</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>8: 920 MHz</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>9: 922 MHz</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>10: 924 MHz</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Hop Count:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLineEdit" name="lineEdit_HopCount"/>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>CAD Counter:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QLabel" name="label_CADCounter">
+        <property name="text">
+         <string>Unknown</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>CAD RSSI Level:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QLineEdit" name="lineEdit_RSSILevel"/>
+      </item>
+      <item row="9" column="1">
+       <widget class="QPushButton" name="pushButton_saveWireless">
+        <property name="text">
+         <string>Save</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0">
+       <widget class="QPushButton" name="pushButton_ResetCAD">
+        <property name="text">
+         <string>Reset CAD</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QLineEdit" name="lineEdit_AES">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>AES Key:</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="InfoTab">
+     <attribute name="title">
+      <string>Information</string>
+     </attribute>
+     <widget class="QWidget" name="formLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>251</width>
+        <height>211</height>
+       </rect>
+      </property>
+      <layout class="QFormLayout" name="formLayout_2">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>MAC ID:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_MAC">
+         <property name="text">
+          <string>Unknown</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_11">
+         <property name="text">
+          <string>Network ID:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="label_NetworkID">
+         <property name="text">
+          <string>Unknown</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_13">
+         <property name="text">
+          <string>Firmware Version:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_14">
+         <property name="text">
+          <string>AT Command set:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLabel" name="label_FirmwareVersion">
+         <property name="text">
+          <string>Unknown</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLabel" name="label_ATVersion">
+         <property name="text">
+          <string>Unknown</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="CommunicationTab">
+     <attribute name="title">
+      <string>Communication</string>
+     </attribute>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="pushButton_Read">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>150</y>
+      <width>251</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Read Values</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox_port">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>40</y>
+      <width>241</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_10">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>20</y>
+      <width>47</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>COM Port</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_Refresh">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>70</y>
+      <width>241</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Refresh</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>554</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
