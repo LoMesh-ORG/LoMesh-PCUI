@@ -4,7 +4,7 @@ from intelhex import IntelHex
 import threading
 import sys
 
-port = "COM7"
+port = "COM9"
 baudrate = 115200
 
 checksum = 0
@@ -145,10 +145,10 @@ def bootload_hex(filepath):
         packet = bytearray()
         for i in range (1,129):
             packet.append(ih[base])
-            base += 1
+        base += 1
         
-        flash_block(flash_addr,packet)
-        #print(flash_block(flash_addr,packet))
+        #flash_block(flash_addr,packet)
+        print(flash_block(flash_addr,packet))
 
     checksum_dev = checksum_device(ih.segments()[0][0],ih.segments()[0][1])
     t.join()
