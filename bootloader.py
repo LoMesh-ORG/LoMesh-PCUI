@@ -145,12 +145,12 @@ def bootload_hex(filepath):
         packet = bytearray()
         for i in range (1,129):
             packet.append(ih[base])
-        base += 1
+            base += 1
         
         #flash_block(flash_addr,packet)
         print(flash_block(flash_addr,packet))
 
-    checksum_dev = checksum_device(ih.segments()[0][0],ih.segments()[0][1])
+    checksum_dev = checksum_device(ih.segments()[0][0],ih.segments()[0][1]-2)
     t.join()
 
     if(checksum == checksum_dev):
@@ -176,6 +176,7 @@ def calculate_checksum(ih):
     
         
 def main():
+    global baudrate
     # val = read_bootloader_version()
     # n = 0
     # for i in val:
