@@ -1,0 +1,2 @@
+D:\projects\xTendLoRa\xTendLoRa-PCUI\skipjack\skipjack_dll\Debug\skipjack_dll.dll
+D:\projects\xTendLoRa\xTendLoRa-PCUI\skipjack\skipjack_dll\Debug\skipjack_dll.pdb
