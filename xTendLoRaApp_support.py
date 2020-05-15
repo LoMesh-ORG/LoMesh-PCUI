@@ -56,7 +56,7 @@ def softReset():
         global Combobox_COMText
         port = Combobox_COMText.get()        
         #Create a serial object
-        with serial.Serial(port, 19200, parity=serial.PARITY_ODD, timeout = 1) as ser:
+        with serial.Serial(port, 19200, parity=serial.PARITY_EVEN, timeout = 1) as ser:
             ser.write(b'AT+RST\r\n')
     except Exception as e:
         print("Error in resetting the device " + str(e))
@@ -71,7 +71,7 @@ def bcastMessage():
         global Combobox_COMText
         port = Combobox_COMText.get()        
         #Create a serial object
-        with serial.Serial(port, 19200, parity=serial.PARITY_ODD, timeout = 1) as ser:   
+        with serial.Serial(port, 19200, parity=serial.PARITY_EVEN, timeout = 1) as ser:   
             value = Packet.get()
             if(len(value) < 64):
                 ser.write(b'AT+BCAST=' + str(value).encode('utf-8') + b'\r\n')
@@ -90,12 +90,13 @@ def recvMessage():
         global Combobox_COMText
         port = Combobox_COMText.get()        
         #Create a serial object
-        with serial.Serial(port, 19200, parity=serial.PARITY_ODD, timeout = 1) as ser:
+        with serial.Serial(port, 19200, parity=serial.PARITY_EVEN, timeout = 1) as ser:
             ser.reset_input_buffer()
             ser.write(b'AT+RECV\r\n')
             data = ser.read_until().decode('utf-8')
             RXTXShortID.set(data.split(":")[0])
             result = re.search('%s(.*)%s' % (":", "\r"), data).group(1)
+            print(result)
             Packet.set(result)
             
     except Exception as e:
@@ -111,7 +112,7 @@ def sendMessage():
         global Combobox_COMText
         port = Combobox_COMText.get()        
         #Create a serial object
-        with serial.Serial(port, 19200, parity=serial.PARITY_ODD, timeout = 1) as ser:   
+        with serial.Serial(port, 19200, parity=serial.PARITY_EVEN, timeout = 1) as ser:   
             value = Packet.get()
             dest = RXTXShortID.get()[0:4]
             if(len(value) < 64):
@@ -129,7 +130,7 @@ def sendSinkMessage():
         global Combobox_COMText
         port = Combobox_COMText.get()        
         #Create a serial object
-        with serial.Serial(port, 19200, parity=serial.PARITY_ODD, timeout = 1) as ser:   
+        with serial.Serial(port, 19200, parity=serial.PARITY_EVEN, timeout = 1) as ser:   
             value = Packet.get()
             if(len(value) < 64):
                 ser.write(b'AT+SSINK=' + str(value).encode('utf-8') + b'\r\n')
@@ -146,7 +147,7 @@ def setSink():
         global Combobox_COMText
         port = Combobox_COMText.get()        
         #Create a serial object
-        with serial.Serial(port, 19200, parity=serial.PARITY_ODD, timeout = 1) as ser:
+        with serial.Serial(port, 19200, parity=serial.PARITY_EVEN, timeout = 1) as ser:
             ser.write(b'AT+SETSINK\r\n')            
             
     except Exception as e:
@@ -163,7 +164,7 @@ def resetCADCounter():
         global Combobox_COMText
         port = Combobox_COMText.get()        
         #Create a serial object
-        with serial.Serial(port, 19200, parity=serial.PARITY_ODD, timeout = 1) as ser:
+        with serial.Serial(port, 19200, parity=serial.PARITY_EVEN, timeout = 1) as ser:
             ser.write(b'AT+CADCOUNTERRST\r\n')
     except Exception as e:
         print("Error in reset the CAD counter " + str(e))
@@ -176,7 +177,7 @@ def writeData():
         global Combobox_COMText
         port = Combobox_COMText.get()        
         #Create a serial object
-        with serial.Serial(port, 19200, parity=serial.PARITY_ODD, timeout = 1) as ser:
+        with serial.Serial(port, 19200, parity=serial.PARITY_EVEN, timeout = 1) as ser:
             #Set Network Address
             try:
                 global NADDR_Text
@@ -249,7 +250,7 @@ def readData():
         global Combobox_COMText
         port = Combobox_COMText.get()        
         #Create a serial object
-        with serial.Serial(port, 19200, parity=serial.PARITY_ODD, timeout = 0.25) as ser:
+        with serial.Serial(port, 19200, parity=serial.PARITY_EVEN, timeout = 0.25) as ser:
             #common io object for read line
             ser.reset_input_buffer()
             #read network address
