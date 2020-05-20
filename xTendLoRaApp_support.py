@@ -7,6 +7,8 @@
 #    May 15, 2020 12:33:03 PM EDT  platform: Windows NT
 #    May 15, 2020 04:33:48 PM EDT  platform: Windows NT
 #    May 15, 2020 04:36:38 PM EDT  platform: Windows NT
+#    May 16, 2020 11:12:38 AM EDT  platform: Windows NT
+#    May 20, 2020 12:20:45 AM EDT  platform: Windows NT
 
 import sys
 import serial
@@ -15,6 +17,7 @@ import re
 import time
 from tkinter import filedialog
 import subprocess
+import packet_error_rate_helper
 
 try:
     import Tkinter as tk
@@ -359,6 +362,14 @@ def get_rx_queue():
     sys.stdout.flush()
     
 def set_Tk_var():    
+    global per_time_out_var
+    per_time_out_var = tk.StringVar()
+    global per_result_var
+    per_result_var = tk.StringVar()
+    per_result_var.set('Label')
+
+    global per_target_node
+    per_target_node = tk.StringVar()
     global combobox_paritytext
     combobox_paritytext = tk.StringVar()
     global combobox_baudtext
@@ -415,6 +426,38 @@ def refreshCOMPorts():
         print("Error in finding COM ports " + str(e))
     sys.stdout.flush()
 
+def packet_error_rate():
+    try:
+        #Get the target node    
+        target = per_target_node.get()[0:4]
+        int(target,16)
+        #if code reaches here then it a valid 16 bit address
+        print("Target node ", target.encode('utf-8'))
+        #Get current COM port selected
+        global Combobox_COMText
+        port = Combobox_COMText.get()         
+        baud = baud_dict[combobox_baudtext.get()]
+        parity = parity_dict[combobox_paritytext.get()]
+        #Get time out from ui
+        try:
+            timeout = int(per_time_out_var.get())
+        except Exception as e:
+            timeout = 5
+            print("Error in setting PER timeout", str(e))
+        #Create a serial object
+        with serial.Serial(port, baudrate = baud, parity = parity, timeout = 0.25) as ser:
+            successful = 0
+            for i in range(0,10):
+                if (0 == packet_error_rate_helper.ping_test(target, 5, ser)):
+                    successful = successful + 1
+                time.sleep(2)
+            rate = successful * 100/10
+            per_result_var.set(str(rate))
+            print("Packet success rate = ", rate)
+    except Exception as e:
+        print("Error in packet error rate function ", str(e))
+    sys.stdout.flush()
+    
 def init(top, gui, *args, **kwargs):
     global w, top_level, root
     w = gui
@@ -427,6 +470,7 @@ def init(top, gui, *args, **kwargs):
     w.Combobox_parity.current(0)
     w.Combobox_baud['values'] = ["9600", "19200", "38400", "57600", "115200"]
     w.Combobox_baud.current(1)
+    per_result_var.set("")
 
 def destroy_window():
     # Function which closes the window.
