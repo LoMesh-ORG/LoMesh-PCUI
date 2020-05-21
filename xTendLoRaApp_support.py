@@ -9,6 +9,8 @@
 #    May 15, 2020 04:36:38 PM EDT  platform: Windows NT
 #    May 16, 2020 11:12:38 AM EDT  platform: Windows NT
 #    May 20, 2020 12:20:45 AM EDT  platform: Windows NT
+#    May 20, 2020 08:57:58 PM EDT  platform: Windows NT
+#    May 20, 2020 09:03:07 PM EDT  platform: Windows NT
 
 import sys
 import serial
@@ -239,17 +241,29 @@ def writeData():
             except Exception as e:
                 print("Illegal value for CAD RSSI threshold " + str(e))
                 
-            #Set the AES Encryption key
+            #Set the AES Application Encryption key
             try:
                 global AES_Text
                 value = AES_Text.get()[0:32]
                 AES_Text.set('Value Hidden')
                 #Code reached here so the value must be valid  
                 if(len(value) == 32):
-                    ser.write(b'AT+AESKEY=' + value.encode('utf-8') + b'\r\n')
+                    ser.write(b'AT+AESKEY:A=' + value.encode('utf-8') + b'\r\n')
                     time.sleep(0.1)
             except Exception as e:
-                print("Illegal value for AES key " + str(e))
+                print("Illegal value for AES application key " + str(e))
+            
+            #Set the AES Network Encryption key
+            try:
+                global net_key_text
+                value = net_key_text.get()[0:32]
+                net_key_text.set('Value Hidden')
+                #Code reached here so the value must be valid  
+                if(len(value) == 32):
+                    ser.write(b'AT+AESKEY:N=' + value.encode('utf-8') + b'\r\n')
+                    time.sleep(0.1)
+            except Exception as e:
+                print("Illegal value for AES network key " + str(e))
             ser.reset_input_buffer()    
     except Exception as e:
         print("Error in saving new settings " + str(e))
@@ -362,6 +376,10 @@ def get_rx_queue():
     sys.stdout.flush()
     
 def set_Tk_var():    
+    global net_key_text
+    net_key_text = tk.StringVar()
+    global net_key
+    net_key = tk.StringVar()
     global per_time_out_var
     per_time_out_var = tk.StringVar()
     global per_result_var
