@@ -74,7 +74,7 @@ def set_encryption_iv(iv):
     commandbuffer.append(iv[14])
     commandbuffer.append(iv[15])
     
-    print (commandbuffer)
+    #print (commandbuffer)
     with serial.Serial(port, baudrate, timeout = 5) as ser:
             ser.write(commandbuffer)
             ser.reset_input_buffer()
@@ -224,8 +224,8 @@ def bootload_hex(filepath):
     while (base < end):
         flash_addr = base
         #print("Sector: " + str(base))
-        #iv = os.urandom(16)
-        iv  = b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+        iv = os.urandom(16)
+        #iv  = b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
         #print(iv.hex())
         set_encryption_iv(iv)
         #print("Sector: " + str(base))
@@ -245,28 +245,27 @@ def bootload_hex(filepath):
             #cipher = xtea.new(key, mode=xtea.MODE_ECB, IV=iv)
             encrypted = cipher.encrypt(packet)
             #cipher = skippy.Skippy(key)
-            #encrypted = cipher.encrypt(packet)
-            
-            flash_block(flash_addr,encrypted)
-            #print(flash_block(flash_addr,packet))
+            #encrypted = cipher.encrypt(packet)            
+            #flash_block(flash_addr,encrypted)
+            flash_block(flash_addr,packet)
         
     print("\n")
     base = ih.segments()[0][0]
     end = ih.segments()[0][1]
     if(end > 0xFFFF):
-        checksum_dev2 = checksum_device(0x10000, (end - 128 - 1))
-        checksum_dev1 = checksum_device(base,0xFFFF)        
-        print(checksum_dev1, checksum_dev2)
+        checksum_dev1 = checksum_device(base,0x10000)
+        checksum_dev2 = checksum_device(0x10000, (end - 128))        
         checksum_dev = (checksum_dev1 + checksum_dev2) & 0xFFFF
+        print(hex(checksum_dev), hex(checksum_dev1), hex(checksum_dev2))
     else:
         checksum_dev = checksum_device(ih.segments()[0][0],ih.segments()[0][1])
     t.join()
-
+    checksum = (ih[0x1FF81] << 8) | ih[0x1FF80]
     if(checksum == checksum_dev):
         print("Check Sum matches")
     else:
         print("Check Sum Fails")
-    print(checksum,checksum_dev)
+    print(hex(checksum),hex(checksum_dev))
 
 
 def calculate_checksum(ih):
