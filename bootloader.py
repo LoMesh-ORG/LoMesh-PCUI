@@ -8,7 +8,8 @@ import xtea
 from Crypto.Cipher import AES
 import Crypto.Cipher.AES
 
-port = "COM9"
+port = "COM8"
+
 baudrate = 115200
 
 key = b'\xa4\xf8\x54\x78\xb5\x74\xad\xc8\xa4\xf8\x54\x78\xb5\x74\xad\xc8'
@@ -188,17 +189,16 @@ def checksum_device(start_addr,end):
     datlen = (end - start_addr)
     commandbuffer.append(datlen & 0xFF) #Data length
     commandbuffer.append((datlen >> 8) & 0xFF)
-
-    commandbuffer.append(0) 
+    
     commandbuffer.append(0)
-
+    commandbuffer.append(0)
 
     commandbuffer.append(start_addr & 0xFF) #Start address
     commandbuffer.append((start_addr >> 8) & 0xFF)
     commandbuffer.append((start_addr >> 16) & 0xFF)
     commandbuffer.append((start_addr >> 32) & 0xFF)
 
-    #print(commandbuffer)
+    print(commandbuffer[0:20])
     data = []
     
     with serial.Serial(port, baudrate, timeout = 20) as ser:
@@ -220,14 +220,18 @@ def bootload_hex(filepath):
 
     print("Start ", base)
     print("End ", end)
-
+    total_sectors = (0x20000 / 128)
     while (base < end):
         flash_addr = base
-        print("Sector: " + str(base))
+        #print("Sector: " + str(base))
         #iv = os.urandom(16)
         iv  = b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
         #print(iv.hex())
         set_encryption_iv(iv)
+        #print("Sector: " + str(base))
+        percent = int((base*100)/(total_sectors * 128))
+        sys.stdout.write("\rProgress: %d%%   Sector:%d" % (percent, base))
+        sys.stdout.flush()
         packet = bytearray()
         for i in range (1,129):
             packet.append(ih[base])
@@ -245,8 +249,17 @@ def bootload_hex(filepath):
             
             flash_block(flash_addr,encrypted)
             #print(flash_block(flash_addr,packet))
-
-    checksum_dev = checksum_device(ih.segments()[0][0],ih.segments()[0][1]-2)
+        
+    print("\n")
+    base = ih.segments()[0][0]
+    end = ih.segments()[0][1]
+    if(end > 0xFFFF):
+        checksum_dev2 = checksum_device(0x10000, (end - 128 - 1))
+        checksum_dev1 = checksum_device(base,0xFFFF)        
+        print(checksum_dev1, checksum_dev2)
+        checksum_dev = (checksum_dev1 + checksum_dev2) & 0xFFFF
+    else:
+        checksum_dev = checksum_device(ih.segments()[0][0],ih.segments()[0][1])
     t.join()
 
     if(checksum == checksum_dev):
