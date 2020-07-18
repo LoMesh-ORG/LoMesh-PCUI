@@ -4,11 +4,15 @@ from intelhex import IntelHex
 import threading
 import sys
 import os
+import argparse
 import xtea
 from Crypto.Cipher import AES
 import Crypto.Cipher.AES
 
-port = "COM8"
+parser = argparse.ArgumentParser()
+parser.add_argument("-f", help="Path to hex file that is to be flashed")
+parser.add_argument("-c", help="COM port")
+port = ""
 
 baudrate = 115200
 
@@ -285,6 +289,7 @@ def calculate_checksum(ih):
         
 def main():
     global baudrate
+    global port
     # val = read_bootloader_version()
     # n = 0
     # for i in val:
@@ -297,6 +302,7 @@ def main():
 ##        n+=1
     print("file found " + sys.argv[1])
     port = sys.argv[2]
+    print(port)
     baudrate = sys.argv[3]
     bootload_hex(sys.argv[1])
     print(reset_device())
