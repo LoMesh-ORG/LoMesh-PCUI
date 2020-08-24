@@ -4,11 +4,13 @@ from intelhex import IntelHex
 import threading
 import sys
 import os
+import argparse
 import xtea
 from Crypto.Cipher import AES
 import Crypto.Cipher.AES
 
-port = "COM9"
+port = ""
+
 baudrate = 115200
 
 key = b'\xa4\xf8\x54\x78\xb5\x74\xad\xc8\xa4\xf8\x54\x78\xb5\x74\xad\xc8'
@@ -73,7 +75,7 @@ def set_encryption_iv(iv):
     commandbuffer.append(iv[14])
     commandbuffer.append(iv[15])
     
-    print (commandbuffer)
+    #print (commandbuffer)
     with serial.Serial(port, baudrate, timeout = 5) as ser:
             ser.write(commandbuffer)
             ser.reset_input_buffer()
@@ -188,17 +190,16 @@ def checksum_device(start_addr,end):
     datlen = (end - start_addr)
     commandbuffer.append(datlen & 0xFF) #Data length
     commandbuffer.append((datlen >> 8) & 0xFF)
-
-    commandbuffer.append(0) 
+    
     commandbuffer.append(0)
-
+    commandbuffer.append(0)
 
     commandbuffer.append(start_addr & 0xFF) #Start address
     commandbuffer.append((start_addr >> 8) & 0xFF)
     commandbuffer.append((start_addr >> 16) & 0xFF)
     commandbuffer.append((start_addr >> 32) & 0xFF)
 
-    #print(commandbuffer)
+    #print(commandbuffer[0:20])
     data = []
     
     with serial.Serial(port, baudrate, timeout = 20) as ser:
@@ -220,14 +221,18 @@ def bootload_hex(filepath):
 
     print("Start ", base)
     print("End ", end)
-
+    total_sectors = (0x20000 / 128)
     while (base < end):
         flash_addr = base
-        print("Sector: " + str(base))
-        #iv = os.urandom(16)
-        iv  = b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+        #print("Sector: " + str(base))
+        iv = os.urandom(16)
+        #iv  = b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
         #print(iv.hex())
         set_encryption_iv(iv)
+        #print("Sector: " + str(base))
+        percent = int((base*100)/(total_sectors * 128))
+        sys.stdout.write("\rProgress: %d%%   Sector:%d" % (percent, base))
+        sys.stdout.flush()
         packet = bytearray()
         for i in range (1,129):
             packet.append(ih[base])
@@ -241,19 +246,27 @@ def bootload_hex(filepath):
             #cipher = xtea.new(key, mode=xtea.MODE_ECB, IV=iv)
             encrypted = cipher.encrypt(packet)
             #cipher = skippy.Skippy(key)
-            #encrypted = cipher.encrypt(packet)
-            
-            flash_block(flash_addr,encrypted)
-            #print(flash_block(flash_addr,packet))
-
-    checksum_dev = checksum_device(ih.segments()[0][0],ih.segments()[0][1]-2)
+            #encrypted = cipher.encrypt(packet)            
+            #flash_block(flash_addr,encrypted)
+            flash_block(flash_addr,packet)
+        
+    print("\n")
+    base = ih.segments()[0][0]
+    end = ih.segments()[0][1]
+    if(end > 0xFFFF):
+        checksum_dev1 = checksum_device(base,0x10000)
+        checksum_dev2 = checksum_device(0x10000, (end - 128))        
+        checksum_dev = (checksum_dev1 + checksum_dev2) & 0xFFFF
+        #print(hex(checksum_dev), hex(checksum_dev1), hex(checksum_dev2))
+    else:
+        checksum_dev = checksum_device(ih.segments()[0][0],ih.segments()[0][1])
     t.join()
-
+    checksum = (ih[0x1FF81] << 8) | ih[0x1FF80]
     if(checksum == checksum_dev):
         print("Check Sum matches")
     else:
         print("Check Sum Fails")
-    print(checksum,checksum_dev)
+    print(hex(checksum),hex(checksum_dev))
 
 
 def calculate_checksum(ih):
@@ -270,24 +283,32 @@ def calculate_checksum(ih):
     checksum = checksum_temp
     return
     
-        
-def main():
-    global baudrate
-    # val = read_bootloader_version()
-    # n = 0
-    # for i in val:
-        # print(n,":",hex(i))
-        # n+=1
-##    val = erase_rows(0x800,496)
-##    n = 0
-##    for i in val:
-##        print(n,":",hex(i))
-##        n+=1
-    print("file found " + sys.argv[1])
-    port = sys.argv[2]
-    baudrate = sys.argv[3]
-    bootload_hex(sys.argv[1])
-    print(reset_device())
+parser = argparse.ArgumentParser()
+parser.add_argument('-f', '--file', help="Path to hex file that is to be flashed", required=True)
+parser.add_argument('-c', '--port', help="COM port", required=True)
+args=parser.parse_args()
+port = args.port
+bootload_hex(args.file)
+reset_device()
+# def main():
+    # global baudrate
+    # global port
+    # # val = read_bootloader_version()
+    # # n = 0
+    # # for i in val:
+        # # print(n,":",hex(i))
+        # # n+=1
+# ##    val = erase_rows(0x800,496)
+# ##    n = 0
+# ##    for i in val:
+# ##        print(n,":",hex(i))
+# ##        n+=1
+    # print("file found " + sys.argv[1])
+    # port = sys.argv[2]
+    # print(port)
+    # baudrate = sys.argv[3]
+    # bootload_hex(sys.argv[1])
+    # print(reset_device())
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+    # main()
