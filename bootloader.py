@@ -9,9 +9,6 @@ import xtea
 from Crypto.Cipher import AES
 import Crypto.Cipher.AES
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-f", help="Path to hex file that is to be flashed")
-parser.add_argument("-c", help="COM port")
 port = ""
 
 baudrate = 115200
@@ -202,7 +199,7 @@ def checksum_device(start_addr,end):
     commandbuffer.append((start_addr >> 16) & 0xFF)
     commandbuffer.append((start_addr >> 32) & 0xFF)
 
-    print(commandbuffer[0:20])
+    #print(commandbuffer[0:20])
     data = []
     
     with serial.Serial(port, baudrate, timeout = 20) as ser:
@@ -260,7 +257,7 @@ def bootload_hex(filepath):
         checksum_dev1 = checksum_device(base,0x10000)
         checksum_dev2 = checksum_device(0x10000, (end - 128))        
         checksum_dev = (checksum_dev1 + checksum_dev2) & 0xFFFF
-        print(hex(checksum_dev), hex(checksum_dev1), hex(checksum_dev2))
+        #print(hex(checksum_dev), hex(checksum_dev1), hex(checksum_dev2))
     else:
         checksum_dev = checksum_device(ih.segments()[0][0],ih.segments()[0][1])
     t.join()
@@ -286,26 +283,32 @@ def calculate_checksum(ih):
     checksum = checksum_temp
     return
     
-        
-def main():
-    global baudrate
-    global port
-    # val = read_bootloader_version()
-    # n = 0
-    # for i in val:
-        # print(n,":",hex(i))
-        # n+=1
-##    val = erase_rows(0x800,496)
-##    n = 0
-##    for i in val:
-##        print(n,":",hex(i))
-##        n+=1
-    print("file found " + sys.argv[1])
-    port = sys.argv[2]
-    print(port)
-    baudrate = sys.argv[3]
-    bootload_hex(sys.argv[1])
-    print(reset_device())
+parser = argparse.ArgumentParser()
+parser.add_argument('-f', '--file', help="Path to hex file that is to be flashed", required=True)
+parser.add_argument('-c', '--port', help="COM port", required=True)
+args=parser.parse_args()
+port = args.port
+bootload_hex(args.file)
+reset_device()
+# def main():
+    # global baudrate
+    # global port
+    # # val = read_bootloader_version()
+    # # n = 0
+    # # for i in val:
+        # # print(n,":",hex(i))
+        # # n+=1
+# ##    val = erase_rows(0x800,496)
+# ##    n = 0
+# ##    for i in val:
+# ##        print(n,":",hex(i))
+# ##        n+=1
+    # print("file found " + sys.argv[1])
+    # port = sys.argv[2]
+    # print(port)
+    # baudrate = sys.argv[3]
+    # bootload_hex(sys.argv[1])
+    # print(reset_device())
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+    # main()

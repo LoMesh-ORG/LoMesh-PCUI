@@ -11,6 +11,7 @@
 #    May 20, 2020 12:20:45 AM EDT  platform: Windows NT
 #    May 20, 2020 08:57:58 PM EDT  platform: Windows NT
 #    May 20, 2020 09:03:07 PM EDT  platform: Windows NT
+#    Aug 23, 2020 11:39:32 PM EDT  platform: Windows NT
 
 import sys
 import serial
@@ -104,7 +105,7 @@ def recvMessage():
         #Create a serial object
         with serial.Serial(port, baudrate = baud, parity = parity, timeout = 0.25) as ser:
             ser.reset_input_buffer()
-            ser.write(b'AT+RECV\r\n')
+            ser.write(b'AT+RECV?\r\n')
             data = ser.read_until().decode('utf-8')
             if("NOT OK" in data):
                 Packet.set("No Packets")
@@ -195,7 +196,7 @@ def writeData():
             #Set Network Address
             try:
                 global NADDR_Text
-                value = NADDR_Text.get()[0:2]
+                value = NADDR_Text.get()[0:4]
                 int(value,16)
                 #Code reached here so the value must be valid                 
                 ser.write(b'AT+NADDR=' + value.encode('utf-8') + b'\r\n')
@@ -222,10 +223,10 @@ def writeData():
             #Set the hop count
             try:
                 global HopCount_Text
-                value = HopCount_Text.get()[0:3]
+                value = HopCount_Text.get()[0:1]
                 int(value)
                 #Code reached here so the value must be valid                 
-                ser.write(b'AT+HOPS=' + value.encode('utf-8') + b'\r\n')
+                ser.write(b'AT+SF=' + value.encode('utf-8') + b'\r\n')
                 time.sleep(0.1)
             except Exception as e:
                 print("Illegal value for Hop count " + str(e))
@@ -240,6 +241,17 @@ def writeData():
                 time.sleep(0.1)
             except Exception as e:
                 print("Illegal value for CAD RSSI threshold " + str(e))
+                
+            #Set Good packet RSSI threshold
+            try:
+                global GoodRSSI_Text
+                value = GoodRSSI_Text.get()[0:4]
+                int(value)
+                #Code reached here so the value must be valid                 
+                ser.write(b'AT+GOODRSSI=' + value.encode('utf-8') + b'\r\n')
+                time.sleep(0.1)
+            except Exception as e:
+                print("Illegal value for good packet RSSI threshold " + str(e))
                 
             #Set the AES Application Encryption key
             try:
@@ -303,12 +315,6 @@ def readData():
             result = re.search('%s(.*)%s' % ("=", "\r"), ser.read_until().decode('utf-8')).group(1)            
             w.Combobox_RFCH.current(int(result) - 1)
 
-            #read Hop Count
-            ser.write(b'AT+HOPS?\r\n')
-            result = re.search('%s(.*)%s' % ("=", "\r"), ser.read_until().decode('utf-8')).group(1) 
-            global HopCount_Text            
-            HopCount_Text.set(result)
-
             #Read current CAD counter
             ser.write(b'AT+CADCOUNTER?\r\n')
             result = re.search('%s(.*)%s' % ("=", "\r"), ser.read_until().decode('utf-8')).group(1)
@@ -332,6 +338,18 @@ def readData():
             result = re.search('%s(.*)%s' % ("=", "\r"), ser.read_until().decode('utf-8')).group(1)
             global ADDR_Text
             ADDR_Text.set(result)
+            
+            #Read spreading factor
+            ser.write(b'AT+SF?\r\n')
+            result = re.search('%s(.*)%s' % ("=", "\r"), ser.read_until().decode('utf-8')).group(1)
+            global HopCount_Text
+            HopCount_Text.set(result)
+            
+            #Read good packet RSSI
+            ser.write(b'AT+GOODRSSI?\r\n')
+            result = re.search('%s(.*)%s' % ("=", "\r"), ser.read_until().decode('utf-8')).group(1)
+            global GoodRSSI_Text
+            GoodRSSI_Text.set(result)
 
             #Read the Firmware and AT Command version
             ser.write(b'AT+I\r\n')
@@ -376,6 +394,8 @@ def get_rx_queue():
     sys.stdout.flush()
     
 def set_Tk_var():    
+    global GoodRSSI_Text
+    GoodRSSI_Text = tk.StringVar()
     global net_key_text
     net_key_text = tk.StringVar()
     global net_key
@@ -385,7 +405,6 @@ def set_Tk_var():
     global per_result_var
     per_result_var = tk.StringVar()
     per_result_var.set('Label')
-
     global per_target_node
     per_target_node = tk.StringVar()
     global combobox_paritytext

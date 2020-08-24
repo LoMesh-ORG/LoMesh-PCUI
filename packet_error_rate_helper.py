@@ -5,14 +5,14 @@ import time
 
 def ping_test(target, timeoutval, ser):
     ser.reset_input_buffer()
-    ser.write(b'AT+SEND:' + target.encode('utf-8') + b'=ping\r\n')
+    ser.write(b'AT+PING:' + target.encode('utf-8') + b'\r\n')
     responcestr = ser.read_until().decode('utf-8')
     if("NOT OK" in responcestr):
         print("Error in sending message")
         return -1
     print("Sent message id", responcestr)
     msg_id = re.search('%s(.*)%s' % (":", "\r"), responcestr).group(1)
-    looking_for = b'ACK:' + msg_id.encode('utf-8')
+    looking_for = msg_id.encode('utf-8') + b':ACK'
     print("Looking for", looking_for)
     print("Sent message id ", int(msg_id, 10))
     return_code = -1
@@ -20,7 +20,7 @@ def ping_test(target, timeoutval, ser):
     with stopit.ThreadingTimeout(timeoutval) as to_ctx_mgr:
         assert to_ctx_mgr.state == to_ctx_mgr.EXECUTING
         while(1):
-            ser.write(b'AT+RECV\r\n')
+            ser.write(b'AT+MSGACK?\r\n')
             responcestr = ser.read_until()
             print(responcestr, responcestr.find(looking_for))
             if(responcestr.find(looking_for) >= 0):
