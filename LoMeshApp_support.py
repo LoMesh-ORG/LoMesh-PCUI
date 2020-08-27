@@ -516,8 +516,8 @@ def destroy_window():
     top_level = None
 
 if __name__ == '__main__':
-    import xTendLoRaApp
-    xTendLoRaApp.vp_start_gui()
+    import LoMeshApp
+    LoMeshApp.vp_start_gui()
 
 
 
