@@ -16,15 +16,22 @@ baudrate = 115200
 key = b'\xa4\xf8\x54\x78\xb5\x74\xad\xc8\xa4\xf8\x54\x78\xb5\x74\xad\xc8'
 key_skip = b'\x00,\x99,\x88,\x77,\x66,\x55,\x44,\x33,\x22,\x11'
 
+partitions = {
+    'a' : 97,
+    'b' : 98,
+    'm' : 109
+}
+
 
 checksum = 0
 
-command_get_version = 0
-command_write_flash = 2
-command_erase_row   = 3
-command_checksum    = 8
-command_reset       = 9
-command_set_iv      = 10
+command_get_version       = 0
+command_write_flash       = 2
+command_erase_row         = 3
+command_checksum          = 8
+command_reset             = 9
+command_set_iv            = 10
+command_erase_partition   = 11
 
 def read_bootloader_version():
     global command_get_version
@@ -283,12 +290,43 @@ def calculate_checksum(ih):
     checksum = checksum_temp
     return
     
+def erase_partition(partition):
+    global command_erase_partition
+    commandbuffer = bytearray()
+    commandbuffer.append(0x55) #Auto Baud
+    commandbuffer.append(command_erase_partition) #command
+    
+    commandbuffer.append(1) #Data length
+    commandbuffer.append(0)
+
+    commandbuffer.append(0x55) #Magic sequence
+    commandbuffer.append(0xAA)
+
+    commandbuffer.append(0) #Start address
+    commandbuffer.append(0)
+    commandbuffer.append(0)
+    commandbuffer.append(0)
+    
+    commandbuffer.append(partitions[partition[0]]) #Partition name
+    print(partitions[partition[0]])
+    print (commandbuffer)
+    with serial.Serial(port, baudrate, timeout = 5) as ser:
+            ser.write(commandbuffer)
+            ser.reset_input_buffer()
+            return ser.read(10)
+    return [-1]
+    
 parser = argparse.ArgumentParser()
-parser.add_argument('-f', '--file', help="Path to hex file that is to be flashed", required=True)
+parser.add_argument('-e', '--erase', help="Erase memory partition. Options are main, a, b", default=None)
+parser.add_argument('-l', '--load', help="Load memory partition. Options are main, a, b", default=None)
+parser.add_argument('-f', '--file', help="Path to hex file that is to be flashed", default=None)
 parser.add_argument('-c', '--port', help="COM port", required=True)
 args=parser.parse_args()
 port = args.port
-bootload_hex(args.file)
+if(args.erase != None):
+    erase_partition(args.erase)
+if(args.load != None):
+    bootload_hex(args.file)
 reset_device()
 # def main():
     # global baudrate
