@@ -12,6 +12,7 @@
 #    May 20, 2020 08:57:58 PM EDT  platform: Windows NT
 #    May 20, 2020 09:03:07 PM EDT  platform: Windows NT
 #    Aug 23, 2020 11:39:32 PM EDT  platform: Windows NT
+#    Dec 11, 2021 09:19:16 PM EST  platform: Windows NT
 
 import sys
 import serial
@@ -188,24 +189,26 @@ def resetCADCounter():
 def writeData():
     global w, top_level, root
     try:
-        #Get current COM port selected
         global Combobox_COMText
-        port = Combobox_COMText.get()        
+        port = Combobox_COMText.get()         
+        baud = baud_dict[combobox_baudtext.get()]
+        parity = parity_dict[combobox_paritytext.get()]
         #Create a serial object
-        with serial.Serial(port, 19200, parity=serial.PARITY_EVEN, timeout = 1) as ser:
+        with serial.Serial(port, baudrate = baud, parity = parity, timeout = 0.5) as ser:
             #Set Network Address
             try:
+                time.sleep(0.1)
                 global NADDR_Text
                 value = NADDR_Text.get()[0:4]
                 int(value,16)
                 #Code reached here so the value must be valid                 
                 ser.write(b'AT+NADDR=' + value.encode('utf-8') + b'\r\n')
-                time.sleep(0.1)
             except Exception as e:
                 print("Illegal value for network address " + str(e))
             
             #Set TX power
             try:
+                time.sleep(0.1)
                 value = w.Combobox_TXPower.current() + 2
                 value = (b'AT+TXPOWER=' + str(value).encode('utf-8') + b'\r\n')
                 ser.write(value)
@@ -214,71 +217,71 @@ def writeData():
                 
             #Set RF Channel
             try:
+                time.sleep(0.1)
                 value = w.Combobox_RFCH.current() + 1
                 value = (b'AT+RFCH=' + str(value).encode('utf-8') + b'\r\n')
                 ser.write(value)
             except Exception as e:
                 print("Error in setting RF channel " + str(e))
                 
-            #Set the hop count
+            #Set the spreading factor
             try:
-                global HopCount_Text
-                value = HopCount_Text.get()[0:1]
-                int(value)
-                #Code reached here so the value must be valid                 
-                ser.write(b'AT+SF=' + value.encode('utf-8') + b'\r\n')
                 time.sleep(0.1)
+                value = w.Combobox_sf.current() + 7               
+                ser.write(b'AT+SF=' + str(value).encode('utf-8') + b'\r\n')                
             except Exception as e:
-                print("Illegal value for Hop count " + str(e))
+                print("Illegal value for SF " + str(e))
                 
             #Set RSSI CAD threshold
             try:
+                time.sleep(0.1)
                 global RSSILevel_Text
                 value = RSSILevel_Text.get()[0:4]
                 int(value)
                 #Code reached here so the value must be valid                 
                 ser.write(b'AT+CADRSSI=' + value.encode('utf-8') + b'\r\n')
-                time.sleep(0.1)
             except Exception as e:
                 print("Illegal value for CAD RSSI threshold " + str(e))
                 
             #Set Good packet RSSI threshold
             try:
+                time.sleep(0.1)
                 global GoodRSSI_Text
                 value = GoodRSSI_Text.get()[0:4]
                 int(value)
                 #Code reached here so the value must be valid                 
                 ser.write(b'AT+GOODRSSI=' + value.encode('utf-8') + b'\r\n')
-                time.sleep(0.1)
             except Exception as e:
                 print("Illegal value for good packet RSSI threshold " + str(e))
                 
             #Set the AES Application Encryption key
             try:
+                time.sleep(0.1)
                 global AES_Text
                 value = AES_Text.get()[0:32]
                 AES_Text.set('Value Hidden')
                 #Code reached here so the value must be valid  
                 if(len(value) == 32):
                     ser.write(b'AT+AESKEY:A=' + value.encode('utf-8') + b'\r\n')
-                    time.sleep(0.1)
             except Exception as e:
                 print("Illegal value for AES application key " + str(e))
             
             #Set the AES Network Encryption key
             try:
+                time.sleep(0.1)
                 global net_key_text
                 value = net_key_text.get()[0:32]
                 net_key_text.set('Value Hidden')
                 #Code reached here so the value must be valid  
                 if(len(value) == 32):
                     ser.write(b'AT+AESKEY:N=' + value.encode('utf-8') + b'\r\n')
-                    time.sleep(0.1)
             except Exception as e:
                 print("Illegal value for AES network key " + str(e))
-            ser.reset_input_buffer()    
+            ser.reset_input_buffer()                
     except Exception as e:
         print("Error in saving new settings " + str(e))
+    finally:
+        ser.close()
     sys.stdout.flush()
 
 def readData():
@@ -290,7 +293,7 @@ def readData():
         baud = baud_dict[combobox_baudtext.get()]
         parity = parity_dict[combobox_paritytext.get()]
         #Create a serial object
-        with serial.Serial(port, baudrate = baud, parity = parity, timeout = 0.25) as ser:
+        with serial.Serial(port, baudrate = baud, parity = parity, timeout = 0.5) as ser:
             #common io object for read line
             ser.reset_input_buffer()
             #read network address
@@ -314,6 +317,12 @@ def readData():
             ser.write(b'AT+RFCH?\r\n')
             result = re.search('%s(.*)%s' % ("=", "\r"), ser.read_until().decode('utf-8')).group(1)            
             w.Combobox_RFCH.current(int(result) - 1)
+            
+                        
+            #Read spreading factor
+            ser.write(b'AT+SF?\r\n')
+            result = re.search('%s(.*)%s' % ("=", "\r"),ser.read_until().decode('utf-8')).group(1)
+            w.Combobox_sf.current(int(result) - 7)
 
             #Read current CAD counter
             ser.write(b'AT+CADCOUNTER?\r\n')
@@ -339,12 +348,6 @@ def readData():
             global ADDR_Text
             ADDR_Text.set(result)
             
-            #Read spreading factor
-            ser.write(b'AT+SF?\r\n')
-            result = re.search('%s(.*)%s' % ("=", "\r"), ser.read_until().decode('utf-8')).group(1)
-            global HopCount_Text
-            HopCount_Text.set(result)
-            
             #Read good packet RSSI
             ser.write(b'AT+GOODRSSI?\r\n')
             result = re.search('%s(.*)%s' % ("=", "\r"), ser.read_until().decode('utf-8')).group(1)
@@ -360,10 +363,12 @@ def readData():
             result = ser.read_until().decode('utf-8')
             global ATSet_Text
             ATSet_Text.set(result.split(' ')[2].replace('\r','').replace('\n',''))
+            ser.reset_input_buffer()
             
     except Exception as e:
-        print("Error in loading values from selected device " + str(e))
-        
+        print("Error in loading values from selected device " + type(inst))
+    finally:
+        ser.close()
     sys.stdout.flush()
 
 def get_rx_queue():
@@ -394,6 +399,8 @@ def get_rx_queue():
     sys.stdout.flush()
     
 def set_Tk_var():    
+    global combobox_sftext
+    combobox_sftext = tk.StringVar()
     global GoodRSSI_Text
     GoodRSSI_Text = tk.StringVar()
     global net_key_text
@@ -506,6 +513,7 @@ def init(top, gui, *args, **kwargs):
     w.Combobox_parity['values'] = ["Even", "Odd", "None"]
     w.Combobox_parity.current(0)
     w.Combobox_baud['values'] = ["9600", "19200", "38400", "57600", "115200"]
+    w.Combobox_sf['values'] = ["7", "8", "9", "10", "11", "12"]
     w.Combobox_baud.current(1)
     per_result_var.set("")
 
